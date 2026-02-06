@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quadro — Estruturas de Armazenagem (Aplicações Práticas)</title>
+  <style>
+    :root{
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --brand:#2563eb;
+      --brand2:#0ea5e9;
+      --ok:#16a34a;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 10px 25px rgba(0,0,0,.06);
+      --radius: 16px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(37,99,235,.12), transparent 60%),
+                  radial-gradient(900px 500px at 95% 0%, rgba(14,165,233,.10), transparent 55%),
+                  var(--bg);
+    }
+
+    .wrap{
+      max-width: 1200px;
+      margin: 28px auto;
+      padding: 0 16px 28px;
+    }
+
+    header{
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom: 16px;
+    }
+
+    .title{
+      background: linear-gradient(135deg, rgba(37,99,235,.12), rgba(14,165,233,.08));
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+      flex: 1 1 520px;
+    }
+
+    .title h1{
+      margin:0 0 6px;
+      font-size: 20px;
+      letter-spacing: .2px;
+    }
+    .title p{
+      margin:0;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: 14px;
+    }
+
+    .controls{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      display:grid;
+      gap:10px;
+      flex: 1 1 420px;
+      min-width: 320px;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 860px){
+      .row{ grid-template-columns: 1fr; }
+    }
+
+    label{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input[type="search"], select{
+      width:100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      background: #fff;
+      color: var(--text);
+    }
+    input[type="search"]:focus, select:focus{
+      border-color: rgba(37,99,235,.55);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.10);
+    }
+
+    .btnbar{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      border:1px solid var(--border);
+      background: #fff;
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      transition:.15s ease;
+      user-select:none;
+    }
+    .btn:hover{ transform: translateY(-1px); box-shadow: 0 8px 16px rgba(0,0,0,.06); }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(37,99,235,.95), rgba(14,165,233,.95));
+      color:#fff;
+      border-color: transparent;
+    }
+    .btn.small{ padding: 8px 10px; font-size: 13px; }
+
+    .meta{
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* TABLE */
+    .panel{
+      margin-top: 14px;
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .panelhead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #fff, #fbfcff);
+    }
+
+    .panelhead .hint{
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .tablewrap{ overflow:auto; }
+
+    table{
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 980px;
+    }
+
+    th, td{
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th{
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #ffffff;
+      text-align: left;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    tr:hover td{ background: rgba(37,99,235,.03); }
+
+    .cell-title{
+      font-weight: 700;
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+    }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 12px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .tag.ok{ border-color: rgba(22,163,74,.25); background: rgba(22,163,74,.08); }
+    .tag.warn{ border-color: rgba(245,158,11,.25); background: rgba(245,158,11,.10); }
+    .tag.bad{ border-color: rgba(239,68,68,.22); background: rgba(239,68,68,.08); }
+    .tag.info{ border-color: rgba(37,99,235,.22); background: rgba(37,99,235,.08); }
+
+    .muted{ color: var(--muted); font-size: 13px; }
+
+    .list{
+      margin: 0;
+      padding-left: 18px;
+      line-height: 1.35;
+    }
+
+    details{
+      margin-top: 8px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: #fff;
+    }
+    summary{
+      cursor:pointer;
+      color: var(--brand);
+      font-weight: 600;
+      list-style: none;
+    }
+    summary::-webkit-details-marker{ display:none; }
+
+    /* CARDS */
+    .cards{
+      display:none;
+      padding: 14px;
+      gap: 12px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    @media (max-width: 1000px){ .cards{ grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 700px){ .cards{ grid-template-columns: 1fr; } }
+
+    .card{
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.05);
+    }
+    .card h3{
+      margin: 0 0 10px;
+      font-size: 16px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .badges{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .card .blocktitle{
+      margin: 10px 0 6px;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .3px;
+    }
+
+    .footer{
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align:center;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>📦 Quadro completo — Estruturas de armazenagem e aplicações práticas</h1>
+        <p>
+          Use os filtros para comparar <b>densidade</b>, <b>seletividade</b>, <b>custo relativo</b> e <b>FIFO/FEFO</b>.
+          Clique nos títulos da tabela para ordenar. Alternar: <span class="kbd">Tabela</span> / <span class="kbd">Cards</span>.
+        </p>
+      </div>
+
+      <div class="controls">
+        <div class="row">
+          <div>
+            <label for="q">🔎 Buscar (estrutura, aplicação, itens, observações)</label>
+            <input id="q" type="search" placeholder="Ex.: câmara fria, miudezas, FEFO, campanha..." />
+          </div>
+          <div>
+            <label for="fDens">📊 Densidade</label>
+            <select id="fDens">
+              <option value="">Todas</option>
+              <option>Baixa</option>
+              <option>Média</option>
+              <option>Alta</option>
+              <option>↑ área útil</option>
+            </select>
+          </div>
+          <div>
+            <label for="fSel">🎯 Seletividade</label>
+            <select id="fSel">
+              <option value="">Todas</option>
+              <option>Baixa</option>
+              <option>Média</option>
+              <option>Alta</option>
+              <option>—</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="fFIFO">⏱️ FIFO/FEFO</label>
+            <select id="fFIFO">
+              <option value="">Todos</option>
+              <option>Com regra/WMS</option>
+              <option>Normalmente LIFO</option>
+              <option>FIFO</option>
+              <option>Depende do controle</option>
+              <option>—</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="fCusto">💰 Custo relativo</label>
+            <select id="fCusto">
+              <option value="">Todos</option>
+              <option>$</option>
+              <option>$$</option>
+              <option>$$$</option>
+            </select>
+          </div>
+
+          <div>
+            <label>&nbsp;</label>
+            <div class="btnbar">
+              <button id="btnReset" class="btn small" type="button">🧹 Limpar filtros</button>
+              <button id="btnView" class="btn primary small" type="button">🗂️ Ver em Cards</button>
+              <span id="count" class="meta">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="panelhead">
+        <div class="hint">
+          ✅ Dica: <b>Flow rack</b> favorece <b>FIFO</b> naturalmente; <b>Drive-in</b> e <b>Push-back</b> tendem a <b>LIFO</b>.
+          <br/>🧭 A escolha costuma equilibrar: <b>densidade</b> × <b>seletividade</b> × <b>giro</b> × <b>validade/lote</b>.
+        </div>
+        <button id="btnExport" class="btn small" type="button" title="Baixar CSV com o quadro filtrado">📥 Exportar CSV</button>
+      </div>
+
+      <!-- TABELA -->
+      <div id="tableView" class="tablewrap">
+        <table aria-label="Tabela de estruturas de armazenagem">
+          <thead>
+            <tr>
+              <th data-sort="estrutura">Sistema 🧱</th>
+              <th data-sort="densidade">Densidade 📊</th>
+              <th data-sort="seletividade">Seletividade 🎯</th>
+              <th data-sort="custo">Custo 💰</th>
+              <th data-sort="fifo">FIFO/FEFO ⏱️</th>
+              <th>Aplicações práticas 🧩</th>
+              <th>Itens típicos 📦</th>
+              <th>Observações técnicas 🛠️</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- CARDS -->
+      <div id="cardsView" class="cards"></div>
+    </section>
+
+    <div class="footer">
+      Feito para uso didático em logística 🧠📦 — personalize o conteúdo para o seu caso (produto, giro, validade, equipamentos e WMS).
+    </div>
+  </div>
+
+  <script>
+    // =========================
+    // DADOS DO QUADRO (edite à vontade)
+    // =========================
+    const dados = [
+      {
+        estrutura: "Porta-paletes",
+        emoji: "🏗️",
+        densidade: "Média",
+        seletividade: "Alta",
+        custo: "$$",
+        fifo: "Com regra/WMS",
+        aplicacoes: [
+          "CD multicliente com muitos SKUs e giro variado",
+          "Separação por pedido (B2B/e-commerce) com endereçamento",
+          "Indústria: estoque de MP e PA em posições fixas ou caóticas"
+        ],
+        itens: [
+          "Caixas fechadas em paletes (alimentos secos, cosméticos, autopeças)",
+          "Matérias-primas paletizadas",
+          "Produtos acabados paletizados"
+        ],
+        obs: [
+          "Alta seletividade e flexibilidade de layout",
+          "FIFO/FEFO depende de regras de endereçamento + WMS",
+          "Boa integração com picking (frente) + pulmão (reserva)"
+        ]
+      },
+      {
+        estrutura: "Drive-in / Drive-thru",
+        emoji: "🚚",
+        densidade: "Alta",
+        seletividade: "Baixa",
+        custo: "$$",
+        fifo: "Normalmente LIFO",
+        aplicacoes: [
+          "Pulmão de alto volume por SKU (muitos paletes do mesmo item)",
+          "Câmara fria com pouca variedade e muita profundidade",
+          "Bebidas/commodities em lotes grandes (pico sazonal)"
+        ],
+        itens: [
+          "Refrigerantes/cervejas por lote",
+          "Congelados com baixa variedade",
+          "Produtos padronizados com grande repetição"
+        ],
+        obs: [
+          "Densidade alta, porém acesso ao fundo é limitado",
+          "Drive-thru melhora fluxo, mas ainda requer padronização por SKU",
+          "Atenção a lotes/validade se houver FEFO"
+        ]
+      },
+      {
+        estrutura: "Flow rack (dinâmico)",
+        emoji: "🧲",
+        densidade: "Alta",
+        seletividade: "Média",
+        custo: "$$$",
+        fifo: "FIFO",
+        aplicacoes: [
+          "Frente de picking de alta rotatividade com reposição contínua",
+          "Operações com FEFO (farma/alimentos) e controle de validade",
+          "Abastecimento de linha (supermercado de peças / milk run)"
+        ],
+        itens: [
+          "Medicamentos e itens com validade",
+          "Alimentos (lotes/validade)",
+          "Componentes de montagem em caixas/flow bins"
+        ],
+        obs: [
+          "Naturalmente favorece FIFO (gravidade/rolos)",
+          "Reduz deslocamento e melhora produtividade no picking",
+          "Custo maior; exige padronização de embalagens e reposição disciplinada"
+        ]
+      },
+      {
+        estrutura: "Push-back",
+        emoji: "↩️",
+        densidade: "Alta",
+        seletividade: "Baixa-média",
+        custo: "$$$",
+        fifo: "Normalmente LIFO",
+        aplicacoes: [
+          "Estoque de campanhas e picos (ex.: Black Friday)",
+          "Poucos SKUs com giro alto e alto volume repetitivo",
+          "Reserva densa quando FIFO não é requisito crítico"
+        ],
+        itens: [
+          "Eletroportáteis de campanha",
+          "Bebidas e itens promocionais",
+          "Caixas fechadas por lote"
+        ],
+        obs: [
+          "Geralmente LIFO; cuidado com validade e rastreabilidade por lote",
+          "Boa densidade sem a complexidade do flow rack",
+          "Requer atenção à segurança/impactos e manutenção do sistema"
+        ]
+      },
+      {
+        estrutura: "Cantilever",
+        emoji: "📏",
+        densidade: "Média",
+        seletividade: "Alta",
+        custo: "$$",
+        fifo: "Depende do controle",
+        aplicacoes: [
+          "Materiais longos com acesso lateral por empilhadeira",
+          "Depósito de construção/metalúrgica",
+          "Madeireira/móveis (chapas, perfis e barras)"
+        ],
+        itens: [
+          "Tubos, barras e perfis metálicos",
+          "Chapas MDF/compensado",
+          "Madeira serrada e peças compridas"
+        ],
+        obs: [
+          "Ideal para cargas longas e volumosas (sem colunas frontais)",
+          "Exige análise de capacidade por braço e estabilidade",
+          "Controle FIFO depende de endereçamento e disciplina de entrada/saída"
+        ]
+      },
+      {
+        estrutura: "Estantes / Picking",
+        emoji: "🧺",
+        densidade: "Média",
+        seletividade: "Alta",
+        custo: "$",
+        fifo: "Com regra/WMS",
+        aplicacoes: [
+          "Miudezas com alta variedade (curva ABC)",
+          "Separação unitária por pedido (e-commerce)",
+          "Almoxarifado técnico/MRO e manutenção"
+        ],
+        itens: [
+          "Parafusos, rolamentos, componentes pequenos",
+          "Acessórios, eletrônicos leves",
+          "Itens de papelaria e reposição"
+        ],
+        obs: [
+          "Baixo custo e alta seletividade (ótimo para SKUs A na zona de ouro)",
+          "Pode combinar com bins, gaveteiros, separação por ondas",
+          "FIFO/FEFO depende de endereçamento, lote e rotinas de reposição"
+        ]
+      },
+      {
+        estrutura: "Mezanino",
+        emoji: "🏢",
+        densidade: "↑ área útil",
+        seletividade: "—",
+        custo: "$$$",
+        fifo: "—",
+        aplicacoes: [
+          "Aumentar área útil quando não dá para expandir o prédio",
+          "Criar 2º nível de picking, embalagem, kitting ou devoluções",
+          "Separar áreas: expedição/recebimento embaixo e operações leves em cima"
+        ],
+        itens: [
+          "Áreas de embalagem e conferência",
+          "Kitting e montagem leve",
+          "Caixas leves e médias (dependendo da estrutura)"
+        ],
+        obs: [
+          "Excelente para aproveitar altura; exige análise estrutural",
+          "Planejar fluxo seguro (escadas, guarda-corpo, elevadores/esteiras)",
+          "Regras de carga por m² e prevenção de quedas são críticas"
+        ]
+      }
+    ];
+
+    // =========================
+    // ESTADO + UTIL
+    // =========================
+    let view = "table"; // table | cards
+    let sortKey = null;
+    let sortDir = 1; // 1 asc, -1 desc
+
+    const el = (id) => document.getElementById(id);
+
+    function norm(str){
+      return (str ?? "").toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
+    function custoRank(c){
+      return c === "$" ? 1 : c === "$$" ? 2 : c === "$$$" ? 3 : 99;
+    }
+
+    function badge(tipo, valor){
+      // Colorização simples por tipo/valor
+      const v = valor;
+      let cls = "info";
+      if(tipo === "densidade"){
+        if(v === "Alta") cls = "ok";
+        else if(v === "Média" || v === "↑ área útil") cls = "warn";
+        else cls = "bad";
+      }
+      if(tipo === "seletividade"){
+        if(v === "Alta") cls = "ok";
+        else if(v === "Média" || v === "Baixa-média") cls = "warn";
+        else if(v === "—") cls = "info";
+        else cls = "bad";
+      }
+      if(tipo === "fifo"){
+        if(v === "FIFO") cls = "ok";
+        else if(v.includes("LIFO")) cls = "bad";
+        else if(v === "Com regra/WMS" || v === "Depende do controle") cls = "warn";
+        else cls = "info";
+      }
+      if(tipo === "custo"){
+        if(v === "$") cls = "ok";
+        else if(v === "$$") cls = "warn";
+        else cls = "bad";
+      }
+      return `<span class="tag ${cls}">${v}</span>`;
+    }
+
+    // =========================
+    // FILTRO + ORDENAÇÃO
+    // =========================
+    function filtrarOrdenar(){
+      const q = norm(el("q").value);
+      const fDens = el("fDens").value;
+      const fSel = el("fSel").value;
+      const fFIFO = el("fFIFO").value;
+      const fCusto = el("fCusto").value;
+
+      let out = dados.filter(d => {
+        const hay = norm([
+          d.estrutura, d.densidade, d.seletividade, d.custo, d.fifo,
+          ...(d.aplicacoes||[]), ...(d.itens||[]), ...(d.obs||[])
+        ].join(" | "));
+
+        const okQ = !q || hay.includes(q);
+        const okD = !fDens || d.densidade === fDens;
+        const okS = !fSel || d.seletividade === fSel;
+        const okF = !fFIFO || d.fifo === fFIFO;
+        const okC = !fCusto || d.custo === fCusto;
+
+        return okQ && okD && okS && okF && okC;
+      });
+
+      if(sortKey){
+        out.sort((a,b) => {
+          let va = a[sortKey], vb = b[sortKey];
+          if(sortKey === "custo"){
+            va = custoRank(va); vb = custoRank(vb);
+          } else {
+            va = norm(va); vb = norm(vb);
+          }
+          if(va < vb) return -1 * sortDir;
+          if(va > vb) return  1 * sortDir;
+          return 0;
+        });
+      }
+
+      el("count").textContent = `📌 ${out.length} estrutura(s)`;
+      return out;
+    }
+
+    // =========================
+    // RENDER: TABELA
+    // =========================
+    function renderTabela(lista){
+      const tbody = el("tbody");
+      tbody.innerHTML = "";
+
+      for(const d of lista){
+        const apps = `<ul class="list">${d.aplicacoes.map(x => `<li>${x}</li>`).join("")}</ul>`;
+        const itens = `<ul class="list">${d.itens.map(x => `<li>${x}</li>`).join("")}</ul>`;
+
+        const obs = `
+          <details>
+            <summary>🛠️ Ver observações</summary>
+            <ul class="list">
+              ${d.obs.map(x => `<li>${x}</li>`).join("")}
+            </ul>
+          </details>
+        `;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>
+            <div class="cell-title">
+              <span style="font-size:18px">${d.emoji}</span>
+              <div>
+                <div>${d.estrutura}</div>
+                <div class="muted">Exemplos de uso e leitura rápida ✅</div>
+              </div>
+            </div>
+          </td>
+          <td>${badge("densidade", d.densidade)}</td>
+          <td>${badge("seletividade", d.seletividade)}</td>
+          <td>${badge("custo", d.custo)}</td>
+          <td>${badge("fifo", d.fifo)}</td>
+          <td>${apps}</td>
+          <td>${itens}</td>
+          <td>${obs}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    // =========================
+    // RENDER: CARDS
+    // =========================
+    function renderCards(lista){
+      const box = el("cardsView");
+      box.innerHTML = "";
+
+      for(const d of lista){
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <h3>${d.emoji} ${d.estrutura}</h3>
+          <div class="badges">
+            <span class="tag info">📊 ${d.densidade}</span>
+            <span class="tag info">🎯 ${d.seletividade}</span>
+            <span class="tag info">💰 ${d.custo}</span>
+            <span class="tag info">⏱️ ${d.fifo}</span>
+          </div>
+
+          <div class="blocktitle">🧩 Aplicações práticas</div>
+          <ul class="list">${d.aplicacoes.map(x => `<li>${x}</li>`).join("")}</ul>
+
+          <div class="blocktitle">📦 Itens típicos</div>
+          <ul class="list">${d.itens.map(x => `<li>${x}</li>`).join("")}</ul>
+
+          <div class="blocktitle">🛠️ Observações técnicas</div>
+          <ul class="list">${d.obs.map(x => `<li>${x}</li>`).join("")}</ul>
+        `;
+        box.appendChild(card);
+      }
+    }
+
+    function render(){
+      const lista = filtrarOrdenar();
+      if(view === "table"){
+        el("tableView").style.display = "block";
+        el("cardsView").style.display = "none";
+        renderTabela(lista);
+      } else {
+        el("tableView").style.display = "none";
+        el("cardsView").style.display = "grid";
+        renderCards(lista);
+      }
+    }
+
+    // =========================
+    // EVENTOS
+    // =========================
+    ["q","fDens","fSel","fFIFO","fCusto"].forEach(id => {
+      el(id).addEventListener("input", render);
+      el(id).addEventListener("change", render);
+    });
+
+    el("btnReset").addEventListener("click", () => {
+      el("q").value = "";
+      el("fDens").value = "";
+      el("fSel").value = "";
+      el("fFIFO").value = "";
+      el("fCusto").value = "";
+      sortKey = null;
+      sortDir = 1;
+      render();
+    });
+
+    el("btnView").addEventListener("click", () => {
+      view = (view === "table") ? "cards" : "table";
+      el("btnView").textContent = view === "table" ? "🗂️ Ver em Cards" : "📋 Ver em Tabela";
+      render();
+    });
+
+    // Ordenação clicando no cabeçalho
+    document.querySelectorAll("th[data-sort]").forEach(th => {
+      th.addEventListener("click", () => {
+        const key = th.getAttribute("data-sort");
+        if(sortKey === key) sortDir *= -1;
+        else { sortKey = key; sortDir = 1; }
+        render();
+      });
+    });
+
+    // Exportar CSV (apenas o que estiver filtrado)
+    el("btnExport").addEventListener("click", () => {
+      const lista = filtrarOrdenar();
+      const header = [
+        "Sistema","Densidade","Seletividade","Custo relativo","FIFO/FEFO",
+        "Aplicações práticas","Itens típicos","Observações técnicas"
+      ];
+
+      const rows = lista.map(d => ([
+        d.estrutura,
+        d.densidade,
+        d.seletividade,
+        d.custo,
+        d.fifo,
+        d.aplicacoes.join(" | "),
+        d.itens.join(" | "),
+        d.obs.join(" | ")
+      ]));
+
+      const csv = [header, ...rows]
+        .map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(";"))
+        .join("\n");
+
+      const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "quadro_estruturas_armazenagem.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    // Primeira renderização
+    render();
+  </script>
+</body>
+</html>
